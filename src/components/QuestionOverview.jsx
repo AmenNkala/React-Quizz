@@ -1,11 +1,14 @@
+import { useContext } from "react";
 import ProgressBar from "./ProgressBar";
+import { QuestionsContext, QUESTION_TIMER } from "../store/QuestionsContext";
 
 export default function QuestionOverview() {
+  const { text } = useContext(QuestionsContext);
   return (
     <div id='question-overview'>
       <div id='question'>
-        <ProgressBar />
-        <h2>What is your name?</h2>
+        <ProgressBar maxValue={QUESTION_TIMER} />
+        <h2>{text}</h2>
       </div>
     </div>
   );
