@@ -1,92 +1,58 @@
 import { createContext, useEffect, useReducer, useState } from "react";
-import QUESTIONS from "../questions";
-
+import { mergedQuestions } from "../questions";
 export const QUESTION_TIMER = 10000;
-const correctAnswers = [
-  {
-    qId: "q1",
-    answer: "A library to build user interfaces with help of declarative code.",
-  },
-  {
-    qId: "q2",
-    answer:
-      "Enabling the use of state and other React features in functional components.",
-  },
-  {
-    qId: "q3",
-    answer: "A JavaScript extension that adds HTML-like syntax to JavaScript.",
-  },
-  {
-    qId: "q4",
-    answer:
-      "By defining a JavaScript function that returns a renderable value.",
-  },
-  {
-    qId: "q5",
-    answer:
-      "An object in a component that holds values and may cause the component to render on change.",
-  },
-  {
-    qId: "q6",
-    answer:
-      "By using the map() method to iterate over an array of data and returning JSX.",
-  },
-  { qId: "q7", answer: "Using a the #if template syntax." },
-];
+
+const initialState = mergedQuestions.map((question) => {
+  return {
+    ...question,
+    questionAnswered: "no",
+    questionSkipped: "no",
+    playerChosenAnswer: "",
+    isPlayerAnswerCorrect: "no",
+  };
+});
 
 export const QuestionsContext = createContext({
-  questions: [],
-  userResponses: [],
-  currentQuestion: {},
-  report: {},
-  onUpdateUserResponses: () => {},
-  onCreateUserReport: () => {},
+  id: "",
+  text: "",
+  answers: [],
+  correctAnswer: "",
+  questionAnswered: "",
+  questionSkipped: "",
+  playerChosenAnswer: "",
+  isPlayerAnswerCorrect: "",
 });
 
 function questionsReducer(state, action) {
   switch (action.type) {
-    case "UPDATE_RESPONSES":
-      const report = correctAnswers.reduce((acc, curr) => {
-        const userResponse = state.userResponses.find(
-          (r) => r.qId === curr.qId
-        );
-        return {
-          ...acc,
-          [curr.qId]:
-            userResponse?.answer === curr.answer ? "Correct" : "Wrong",
-        };
-      }, {});
-
-      return {
-        ...state,
-        userResponses: [...state.userResponses, action.response],
-      };
-    /* case "CREATE_USER_REPORT":
-      const report = correctAnswers.reduce((acc, curr) => {
-        const userResponse = state.userResponses.find(
-          (r) => r.qId === curr.qId
-        );
-        return {
-          ...acc,
-          [curr.qId]:
-            userResponse?.answer === curr.answer ? "Correct" : "Wrong",
-        };
-      }, {});
-      return {
-        ...state,
-        report,
-      }; */
-    case "RESET_USER_RESPONSES":
+    case "":
     default:
       return state;
   }
 }
 export default function QuestionsContextProvider({ children }) {
-  const [state, dispatch] = useReducer(questionsReducer, {});
+  const [state, dispatch] = useReducer(questionsReducer, initialState);
   const [currentQuestionId, setCurrentQuestion] = useState(0);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentQuestion((prev) => (prev < state.length - 1 ? prev + 1 : 0));
+    }, QUESTION_TIMER);
+
+    return () => clearInterval(interval);
+  }, [state]);
+
+
+
   const questionsCtx = {
-    questions: [...QUESTIONS],
+    id: currentQuestionId,
+    text: state[currentQuestionId].text,
+    answers: state[currentQuestionId].answers,
+    correctAnswer: state[currentQuestionId].correctAnswer,
+    questionAnswered: state[currentQuestionId].questionAnswered,
+    questionSkipped: state[currentQuestionId].questionSkipped,
+    playerChosenAnswer: state[currentQuestionId].playerChosenAnswer,
+    isPlayerAnswerCorrect: state[currentQuestionId].isPlayerAnswerCorrect,
   };
 
   return (

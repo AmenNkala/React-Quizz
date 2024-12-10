@@ -2,14 +2,11 @@ import { useState, useContext } from "react";
 import { QuestionsContext } from "../store/QuestionsContext";
 
 export default function Answers() {
-  const { currentQuestion, onUpdateUserResponses } =
-    useContext(QuestionsContext);
+  const { id, answers } = useContext(QuestionsContext);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
-  const { answers } = currentQuestion;
 
   function handleAnswerSelect(qId, answer, index) {
     setSelectedAnswer(index);
-    onUpdateUserResponses(qId, answer);
   }
 
   return (
@@ -19,9 +16,7 @@ export default function Answers() {
           <span className='answer' key={index}>
             <button
               className={selectedAnswer === index ? "selected" : null}
-              onClick={() =>
-                handleAnswerSelect(currentQuestion.id, answer, index)
-              }
+              onClick={() => handleAnswerSelect(id, answer, index)}
             >
               {answer}
             </button>
